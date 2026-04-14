@@ -50,14 +50,14 @@ def _build_embeddings():
     )
 
 
-def _build_llm():
+def _build_llm() -> tuple:
     if os.getenv("OPENAI_API_KEY"):
         model = os.getenv("OPENAI_LLM_MODEL", "gpt-4o-mini")
-        return ChatOpenAI(model=model)
+        return ChatOpenAI(model=model), model
 
     if os.getenv("GOOGLE_API_KEY"):
         model = os.getenv("GOOGLE_LLM_MODEL", "gemini-2.5-flash-lite")
-        return ChatGoogleGenerativeAI(model=model)
+        return ChatGoogleGenerativeAI(model=model), model
 
     raise RuntimeError(
         "Nenhum provedor de LLM configurado. Defina OPENAI_API_KEY ou GOOGLE_API_KEY no .env"
@@ -73,7 +73,7 @@ def search_prompt() -> Callable[[str], str] | None:
 
     try:
         embeddings = _build_embeddings()
-        llm = _build_llm()
+        llm, model_name = _build_llm()
 
         store = PGVector(
             embeddings=embeddings,
@@ -87,6 +87,18 @@ def search_prompt() -> Callable[[str], str] | None:
             contexto = "\n\n".join(doc.page_content for doc, _score in results)
             prompt = PROMPT_TEMPLATE.format(contexto=contexto, pergunta=question)
             response = llm.invoke(prompt)
+
+            usage = response.usage_metadata or {}
+            input_tokens = usage.get("input_tokens", "—")
+            output_tokens = usage.get("output_tokens", "—")
+            total_tokens = usage.get("total_tokens", "—")
+            print(
+                f"[modelo: {model_name} | "
+                f"tokens — entrada: {input_tokens}, "
+                f"saída: {output_tokens}, "
+                f"total: {total_tokens}]"
+            )
+
             return response.content
 
         return chain

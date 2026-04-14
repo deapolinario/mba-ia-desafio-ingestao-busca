@@ -8,7 +8,7 @@ def main() -> None:
         print("Não foi possível iniciar o chat. Verifique os erros de inicialização.")
         return
 
-    print("Bem-vindo ao chat RAG! Faça perguntas sobre o documento carregado.")
+    print("Bem-vindo ao chat Desafio_1! Faça perguntas sobre o documento carregado.")
     print("Pressione Ctrl+C para sair.\n")
 
     while True:
