@@ -52,7 +52,7 @@ def _build_embeddings():
 
 def _build_llm() -> tuple:
     if os.getenv("OPENAI_API_KEY"):
-        model = os.getenv("OPENAI_LLM_MODEL", "gpt-4o-mini")
+        model = os.getenv("OPENAI_LLM_MODEL", "gpt-5-nano")
         return ChatOpenAI(model=model), model
 
     if os.getenv("GOOGLE_API_KEY"):
